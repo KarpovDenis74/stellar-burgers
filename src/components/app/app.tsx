@@ -14,6 +14,7 @@ import '../../index.css';
 import styles from './app.module.css';
 
 import { AppHeader, IngredientDetails, Modal, OrderInfo } from '@components';
+import { selectIngredientsError, selectIngredientsLoading } from '@selectors';
 import { Preloader } from '@ui';
 import { useDispatch, useSelector } from '../../services/store';
 import {
@@ -35,16 +36,15 @@ const App = () => {
   const background = state?.background;
 
   const dispatch = useDispatch();
-  const { isLoading: isIngredientsLoading, error } = useSelector(
-    (store) => store.ingredients
-  );
+  const isIngredientsLoading = useSelector(selectIngredientsLoading);
+  const error = useSelector(selectIngredientsError);
 
   useEffect(() => {
     dispatch(fetchIngredients());
   }, [dispatch]);
 
   useEffect(() => {
-    if (localStorage.getItem('accessToken') || getCookie('accessToken')) {
+    if (getCookie('accessToken')) {
       dispatch(fetchUser());
     }
   }, [dispatch]);

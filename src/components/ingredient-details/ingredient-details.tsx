@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import { useParams } from 'react-router-dom';
+import { selectIngredientById } from '@selectors';
 import { Preloader } from '../ui/preloader';
 import { IngredientDetailsUI } from '../ui/ingredient-details';
 import { useSelector } from '../../services/store';
@@ -7,7 +8,7 @@ import { useSelector } from '../../services/store';
 export const IngredientDetails: FC = () => {
   const { id } = useParams();
   const ingredientData = useSelector((store) =>
-    store.ingredients.items.find((item) => item._id === id)
+    selectIngredientById(store, id)
   );
 
   if (!ingredientData) {

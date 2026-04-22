@@ -1,6 +1,8 @@
 import { FC, ReactElement } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { getCookie } from '../utils/cookie';
+import { selectUser, selectUserLoading } from '@selectors';
+import { Preloader } from '@ui';
+import { useSelector } from '../services/store';
 
 type TProtectedRouteProps = {
   component: ReactElement;
@@ -12,9 +14,13 @@ export const ProtectedRoute: FC<TProtectedRouteProps> = ({
   onlyUnAuth = false
 }) => {
   const location = useLocation();
-  const isAuthorized =
-    Boolean(localStorage.getItem('accessToken')) ||
-    Boolean(getCookie('accessToken'));
+  const user = useSelector(selectUser);
+  const isLoading = useSelector(selectUserLoading);
+  const isAuthorized = Boolean(user);
+
+  if (isLoading) {
+    return <Preloader />;
+  }
 
   if (onlyUnAuth && isAuthorized) {
     const from = location.state?.from || { pathname: '/' };

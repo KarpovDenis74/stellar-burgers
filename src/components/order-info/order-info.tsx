@@ -1,5 +1,10 @@
 import { FC, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
+import {
+  selectIngredients,
+  selectOrderDetails,
+  selectOrderDetailsLoading
+} from '@selectors';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
 import { TIngredient } from '@utils-types';
@@ -9,12 +14,9 @@ import { fetchOrderByNumber } from '../../services/slices/order-details-slice';
 export const OrderInfo: FC = () => {
   const { number } = useParams();
   const dispatch = useDispatch();
-  const { order: orderData, isLoading } = useSelector(
-    (store) => store.orderDetails
-  );
-  const ingredients: TIngredient[] = useSelector(
-    (store) => store.ingredients.items
-  );
+  const orderData = useSelector(selectOrderDetails);
+  const isLoading = useSelector(selectOrderDetailsLoading);
+  const ingredients: TIngredient[] = useSelector(selectIngredients);
 
   useEffect(() => {
     if (number) {

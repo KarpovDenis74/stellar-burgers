@@ -38,7 +38,6 @@ export const loginUser = createAsyncThunk(
     const response = await loginUserApi(payload);
     setCookie('accessToken', response.accessToken);
     localStorage.setItem('refreshToken', response.refreshToken);
-    localStorage.setItem('accessToken', response.accessToken);
     return response.user;
   }
 );
@@ -49,7 +48,6 @@ export const registerUser = createAsyncThunk(
     const response = await registerUserApi(payload);
     setCookie('accessToken', response.accessToken);
     localStorage.setItem('refreshToken', response.refreshToken);
-    localStorage.setItem('accessToken', response.accessToken);
     return response.user;
   }
 );
@@ -58,7 +56,6 @@ export const logoutUser = createAsyncThunk('user/logout', async () => {
   await logoutApi();
   deleteCookie('accessToken');
   localStorage.removeItem('refreshToken');
-  localStorage.removeItem('accessToken');
 });
 
 const userSlice = createSlice({

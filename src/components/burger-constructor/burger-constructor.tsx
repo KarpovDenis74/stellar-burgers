@@ -1,8 +1,8 @@
 import { FC, useMemo } from 'react';
 import { TConstructorIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
+import { selectBurgerConstructor, selectIsAuthorized } from '@selectors';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getCookie } from '../../utils/cookie';
 import { useDispatch, useSelector } from '../../services/store';
 import {
   clearOrderModal,
@@ -15,15 +15,12 @@ export const BurgerConstructor: FC = () => {
   const dispatch = useDispatch();
 
   const { bun, ingredients, orderRequest, orderModalData } = useSelector(
-    (store) => store.burgerConstructor
+    selectBurgerConstructor
   );
+  const isAuthorized = useSelector(selectIsAuthorized);
   const constructorItems = { bun, ingredients };
 
   const onOrderClick = () => {
-    const isAuthorized =
-      Boolean(localStorage.getItem('accessToken')) ||
-      Boolean(getCookie('accessToken'));
-
     if (!isAuthorized) {
       navigate('/login', { state: { from: location } });
       return;
