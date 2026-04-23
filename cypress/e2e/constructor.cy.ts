@@ -1,4 +1,8 @@
 describe('Конструктор бургера', () => {
+  const bunId = '643d69a5c3f7b9001cfa093c';
+  const mainId = '643d69a5c3f7b9001cfa0941';
+  const sauceId = '643d69a5c3f7b9001cfa0944';
+
   beforeEach(() => {
     cy.intercept('GET', '**/api/ingredients', {
       fixture: 'ingredients.json'
@@ -16,36 +20,48 @@ describe('Конструктор бургера', () => {
   });
 
   it('добавляет булку и начинку в конструктор', () => {
-    cy.contains('Краторная булка N-200i')
-      .parents('li')
-      .within(() => cy.contains('Добавить').click());
+    cy.get('[data-cy="ingredients-list"]').within(() => {
+      cy.get(`[data-cy="ingredient-${bunId}"]`)
+        .contains('Добавить')
+        .click();
+      cy.get(`[data-cy="ingredient-${mainId}"]`)
+        .contains('Добавить')
+        .click();
+    });
 
-    cy.contains('Биокотлета из марсианской Магнолии')
-      .parents('li')
-      .within(() => cy.contains('Добавить').click());
-
-    cy.contains('Краторная булка N-200i (верх)').should('exist');
-    cy.contains('Краторная булка N-200i (низ)').should('exist');
-    cy.contains('Биокотлета из марсианской Магнолии').should('exist');
+    cy.get('[data-cy="burger-constructor"]').within(() => {
+      cy.get('[data-cy="constructor-bun-top"]').should('exist');
+      cy.get('[data-cy="constructor-bun-bottom"]').should('exist');
+      cy.contains('Биокотлета из марсианской Магнолии').should('exist');
+    });
   });
 
   it('открывает и закрывает модалку ингредиента (крестик и оверлей)', () => {
-    cy.contains('Краторная булка N-200i').click();
-    cy.contains('Детали ингредиента').should('exist');
-    cy.contains('Краторная булка N-200i').should('exist');
-    cy.contains('Калории, ккал').should('exist');
-
-    cy.contains('Детали ингредиента')
-      .parent()
-      .find('button')
-      .first()
+    cy.get('[data-cy="ingredients-list"]')
+      .find(`[data-cy="ingredient-${bunId}"]`)
+      .contains('Краторная булка N-200i')
       .click();
-    cy.contains('Детали ингредиента').should('not.exist');
 
-    cy.contains('Соус традиционный галактический').click();
-    cy.contains('Детали ингредиента').should('exist');
-    cy.get('body').click(5, 5);
-    cy.contains('Детали ингредиента').should('not.exist');
+    cy.get('[data-cy="modal"]').within(() => {
+      cy.contains('Детали ингредиента').should('exist');
+      cy.get('[data-cy="ingredient-details"]').within(() => {
+        cy.get('[data-cy="ingredient-name"]').should(
+          'have.text',
+          'Краторная булка N-200i'
+        );
+        cy.contains('Калории, ккал').should('exist');
+      });
+      cy.get('[data-cy="modal-close"]').click();
+    });
+    cy.get('[data-cy="modal"]').should('not.exist');
+
+    cy.get('[data-cy="ingredients-list"]')
+      .find(`[data-cy="ingredient-${sauceId}"]`)
+      .contains('Соус традиционный галактический')
+      .click();
+    cy.get('[data-cy="modal"]').should('exist');
+    cy.get('[data-cy="modal-overlay"]').click({ force: true });
+    cy.get('[data-cy="modal"]').should('not.exist');
   });
 
   it('создаёт заказ, показывает номер и очищает конструктор', () => {
@@ -65,21 +81,27 @@ describe('Конструктор бургера', () => {
     cy.wait('@getIngredients');
     cy.wait('@getUser');
 
-    cy.contains('Краторная булка N-200i')
-      .parents('li')
-      .within(() => cy.contains('Добавить').click());
-    cy.contains('Биокотлета из марсианской Магнолии')
-      .parents('li')
-      .within(() => cy.contains('Добавить').click());
+    cy.get('[data-cy="ingredients-list"]').within(() => {
+      cy.get(`[data-cy="ingredient-${bunId}"]`)
+        .contains('Добавить')
+        .click();
+      cy.get(`[data-cy="ingredient-${mainId}"]`)
+        .contains('Добавить')
+        .click();
+    });
 
-    cy.contains('Оформить заказ').click();
+    cy.get('[data-cy="burger-constructor"]').contains('Оформить заказ').click();
     cy.wait('@createOrder');
 
-    cy.contains('12345').should('exist');
+    cy.get('[data-cy="modal"]').within(() => {
+      cy.get('[data-cy="order-number"]').should('contain', '12345');
+    });
     cy.get('body').type('{esc}');
 
-    cy.contains('идентификатор заказа').should('not.exist');
-    cy.contains('Выберите булки').should('exist');
-    cy.contains('Выберите начинку').should('exist');
+    cy.get('[data-cy="modal"]').should('not.exist');
+    cy.get('[data-cy="burger-constructor"]').within(() => {
+      cy.get('[data-cy="constructor-empty-bun"]').should('exist');
+      cy.get('[data-cy="constructor-empty-fillings"]').should('exist');
+    });
   });
 });

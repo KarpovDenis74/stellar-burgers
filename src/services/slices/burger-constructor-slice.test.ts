@@ -1,6 +1,7 @@
 import {
   addIngredient,
   burgerConstructorReducer,
+  moveIngredientUp,
   moveIngredientDown,
   removeIngredient
 } from './burger-constructor-slice';
@@ -85,6 +86,22 @@ describe('burgerConstructor reducer', () => {
         orderError: null
       },
       moveIngredientDown(0)
+    );
+
+    expect(state.ingredients[0].id).toBe('main-b');
+    expect(state.ingredients[1].id).toBe('main-a');
+  });
+
+  it('перемещает ингредиент вверх в начинке', () => {
+    const state = burgerConstructorReducer(
+      {
+        bun: null,
+        ingredients: [mainA, mainB],
+        orderRequest: false,
+        orderModalData: null,
+        orderError: null
+      },
+      moveIngredientUp(1)
     );
 
     expect(state.ingredients[0].id).toBe('main-b');
